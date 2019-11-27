@@ -34,14 +34,15 @@ $difs.innerText.ToLower() | Out-File diferencias.txt
 $linea = 2
 foreach($nombrecito in $nombres.innerText.ToLower())
 {
-    $nombre="manu"+$nombrecito
+    $nombreprima="manu"+$nombrecito.replace(".","")
+    $nombre=$nombreprima.replace(" ","")
     $nombremayus = $nombrecito.ToUpper()
     New-Item -ItemType Directory -Name www.$nombre.es -Force
     cd D:\xampp\htdocs\www.$nombre.es
     wp core download
     wp config create  --dbname=base_$nombre --dbuser=root --locale=es_ES
     wp db create
-    wp core install --url=www.$nombre.es --title="Dominio $nombre" --admin_user=$nombre --admin_password=Andel1928 --admin_email=$nombre@email.com
+    wp core install --url=www.$nombre.es --title="Dominio $nombre" --admin_user=$nombre --admin_password=Andel1928 --admin_email=subida@email.com
     $contenido = Get-Content D:\xampp\htdocs\diferencias.txt | Select -Index ($linea - 1)
     wp post create --post_title="$nombremayus" --post_content="$contenido" --post_type="post" --post_status="publish"
     $linea++
@@ -83,14 +84,15 @@ $difs.innerText.ToLower() | Out-File diferencias.txt
 $linea = 2
 foreach($nombrecito in $nombres.innerText.ToLower())
 {
-    $nombre="manu"+$nombrecito
+    $nombreprima="manu"+$nombrecito.replace(".","")
+    $nombre=$nombreprima.replace(" ","")
     $nombremayus = $nombrecito.ToUpper()
     New-Item -ItemType Directory -Name www.$nombre.es -Force
     cd D:\xampp\htdocs\www.$nombre.es
     wp core download
     wp config create  --dbname=base_$nombre --dbuser=root --locale=es_ES
     wp db create
-    wp core install --url=www.$nombre.es --title="Dominio $nombre" --admin_user=$nombre --admin_password=Andel1928 --admin_email=$nombre@email.com
+    wp core install --url=www.$nombre.es --title="Dominio $nombre" --admin_user=$nombre --admin_password=Andel1928 --admin_email=bajada@email.com
     $contenido = Get-Content D:\xampp\htdocs\diferencias.txt | Select -Index ($linea - 1)
     wp post create --post_title="$nombremayus" --post_content="$contenido" --post_type="post" --post_status="publish"
     $linea++
@@ -131,14 +133,15 @@ $difs.innerText.ToLower() | Out-File diferencias.txt
 $linea = 2
 foreach($nombrecito in $nombres.innerText.ToLower())
 {
-    $nombre="manu"+$nombrecito
+    $nombreprima="manu"+$nombrecito.replace(".","")
+    $nombre=$nombreprima.replace(" ","")
     $nombremayus = $nombrecito.ToUpper()
     New-Item -ItemType Directory -Name www.$nombre.es -Force
     cd D:\xampp\htdocs\www.$nombre.es
     wp core download
     wp config create  --dbname=base_$nombre --dbuser=root --locale=es_ES
     wp db create
-    wp core install --url=www.$nombre.es --title="Dominio $nombre" --admin_user=$nombre --admin_password=Andel1928 --admin_email=$nombre@email.com
+    wp core install --url=www.$nombre.es --title="Dominio $nombre" --admin_user=$nombre --admin_password=Andel1928 --admin_email=igual@email.com
     $contenido = Get-Content D:\xampp\htdocs\diferencias.txt | Select -Index ($linea - 1)
     $linea++
     wp post create --post_title="$nombremayus" --post_content="$contenido" --post_type="post" --post_status="publish"
