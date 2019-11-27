@@ -39,11 +39,11 @@ foreach($nombrecito in $nombres.innerText.ToLower())
     $nombremayus = $nombrecito.ToUpper()
     New-Item -ItemType Directory -Name www.$nombre.es -Force
     cd D:\xampp\htdocs\www.$nombre.es
-    wp core download
+    wp core download --locale=es_ES
     wp config create  --dbname=base_$nombre --dbuser=root --locale=es_ES
     wp db create
     wp core install --url=www.$nombre.es --title="Dominio $nombre" --admin_user=$nombre --admin_password=Andel1928 --admin_email=subida@email.com
-    $contenido = Get-Content D:\xampp\htdocs\diferencias.txt | Select -Index ($linea - 1)
+    $contenido = " El valor de la bolsa de "+$nombre+" ha variado "+(Get-Content D:\xampp\htdocs\diferencias.txt | Select -Index ($linea - 1))
     wp post create --post_title="$nombremayus" --post_content="$contenido" --post_type="post" --post_status="publish"
     $linea++
 
@@ -89,11 +89,11 @@ foreach($nombrecito in $nombres.innerText.ToLower())
     $nombremayus = $nombrecito.ToUpper()
     New-Item -ItemType Directory -Name www.$nombre.es -Force
     cd D:\xampp\htdocs\www.$nombre.es
-    wp core download
+    wp core download --locale=es_ES
     wp config create  --dbname=base_$nombre --dbuser=root --locale=es_ES
     wp db create
     wp core install --url=www.$nombre.es --title="Dominio $nombre" --admin_user=$nombre --admin_password=Andel1928 --admin_email=bajada@email.com
-    $contenido = Get-Content D:\xampp\htdocs\diferencias.txt | Select -Index ($linea - 1)
+    $contenido = " El valor de la bolsa de "+$nombre+" ha variado "+(Get-Content D:\xampp\htdocs\diferencias.txt | Select -Index ($linea - 1))
     wp post create --post_title="$nombremayus" --post_content="$contenido" --post_type="post" --post_status="publish"
     $linea++
 
@@ -138,11 +138,11 @@ foreach($nombrecito in $nombres.innerText.ToLower())
     $nombremayus = $nombrecito.ToUpper()
     New-Item -ItemType Directory -Name www.$nombre.es -Force
     cd D:\xampp\htdocs\www.$nombre.es
-    wp core download
+    wp core download --locale=es_ES
     wp config create  --dbname=base_$nombre --dbuser=root --locale=es_ES
     wp db create
     wp core install --url=www.$nombre.es --title="Dominio $nombre" --admin_user=$nombre --admin_password=Andel1928 --admin_email=igual@email.com
-    $contenido = Get-Content D:\xampp\htdocs\diferencias.txt | Select -Index ($linea - 1)
+    $contenido = " El valor de la bolsa de "+$nombre+" ha variado "+(Get-Content D:\xampp\htdocs\diferencias.txt | Select -Index ($linea - 1))
     $linea++
     wp post create --post_title="$nombremayus" --post_content="$contenido" --post_type="post" --post_status="publish"
 
