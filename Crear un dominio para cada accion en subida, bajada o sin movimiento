@@ -121,10 +121,10 @@ foreach($nombrecito in $nombres.innerText.ToLower())
 cd D:\xampp\htdocs
 $web = iwr "http://www.bolsamadrid.es/esp/aspx/Mercados/Precios.aspx?indice=ESI100000000&punto=indice"
 
-$nombres=$web.AllElements | where class -eq "DifFlIg" | select -Skip 1
+$nombres=$web.AllElements | where class -eq "DifFlIg"
 $nombres.innerText.ToLower()
 
-$difs=$web.AllElements | where class -eq "DifClIg" | select -Skip 1
+$difs=$web.AllElements | where class -eq "DifClIg"
 $difs.innerText.ToLower() | Out-File diferencias.txt
 
 #Crear un worpres y sus respectivas carpetas y bases de datos para cada empresa
