@@ -1,3 +1,4 @@
+```PowerShell
 function mostrarMenu 
 { 
      param ( 
@@ -174,3 +175,4 @@ foreach($nombrecito in $nombres.innerText.ToLower())
      pause 
 } 
 until ($input -eq '4')
+```
