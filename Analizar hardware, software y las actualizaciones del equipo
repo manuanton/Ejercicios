@@ -1,0 +1,37 @@
+                ########################
+############### ## ANALIZAR HARDWARE ### ######################################################################
+                ########################
+
+###Ver dispositivos conectados###
+
+Get-PnpDevice | Where-Object { $_.class -EQ 'USBDevice' } | Select-Object FriendlyName
+ 
+Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\USBSTOR\*\*\' | Where-Object { $_.FriendlyName } | Select-Object FriendlyName
+Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\USB\*\*\' | Where-Object { $_.FriendlyName } | Select-Object FriendlyName
+Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Enum\USB\*\*\' | Where-Object { $_.FriendlyName } | Select-Object FriendlyName
+Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Enum\USBSTOR\*\*\' | Where-Object { $_.FriendlyName } | Select-Object FriendlyName
+
+
+                ########################
+############### ## ANALIZAR SOFTWARE ### ######################################################################
+                ########################
+
+###Mostrar los PROGRAMAS instalados en el equipo, para mostrar instaladores, quitar el Where-Object###
+Get-Package | Where-Object ProviderName -eq Programs | Select-Object Name, Version
+
+###Mostrar los servicios que se están ejecutando en relación con los procesos y los hilos de forma bonita.###
+
+(Get-WmiObject -Class Win32_Service | Where-Object State -EQ ‘Running’) | select -First 3 | %{
+$hilosfeo=(Get-WmiObject -Class Win32_Thread | Where-Object ProcessHandle -EQ $_.ProcessId).Handle
+$hilosguay=foreach($hilo in $hilosfeo){
+    "(hilo "+$hilo+")"
+}
+Write-Host $_.Name,$_.ProcessId,(Get-Process -Id $_.ProcessId).Name,$hilosguay
+}
+
+                ################################
+############### ## COMPROBAR ACTUALIZACIONES ### ######################################################################
+                ################################
+
+Get-HotFix | Select-Object HotFixID
+Get-Package | Select-Object Name | Where-Object Name -match "Actualización" | Format-Custom
