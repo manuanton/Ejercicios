@@ -1,0 +1,113 @@
+cd D:\
+"manuel.Password_1928" | Out-File fichero.txt
+#Creamos el fichero hashfichero.txt que se tiene que comparar ya que supuestamente es el antiguo hash de fichero.txt
+(Get-FileHash fichero.txt -Algorithm MD5).Hash | Out-File hashfichero.txt
+#En el fichero hashfichero.txt está el hash del fichero original 
+$hashantes=gc hashfichero.txt
+$hashahora=(Get-FileHash fichero.txt -Algorithm MD5).Hash
+
+if($hashantes -eq $hashahora){
+    "Sus ficheros son iguales, puede continuar"
+    } else {
+    "Alerta! su fichero ha sido modficado"
+    pause
+    }
+
+#####################################################################
+
+#Creamos una función que te dice el nivel de seguridad de nuestra contraseña y cómo mejorarla
+
+function seguridad_password($pass){
+   $seguridad=0
+   if ($pass.length -ne 0){
+      if ($pass -cmatch '[0-9]' -eq 1){
+         $seguridad=$seguridad+2
+      }
+      if ($pass -cmatch '[A-Z]' -eq 1){
+         $seguridad=$seguridad+5
+      }
+      if ($pass -match '[^a-zA-Z0-9]' -eq 1){
+         $seguridad=$seguridad+10
+      }
+      if ($pass.length -ge 8){
+         $seguridad=$seguridad+11
+      }
+       $respuesta=switch($seguridad){
+            '0' {
+            echo "Es muy poco segura, debes añadirle al menos un número, una letra mayúscula, un símbolo y escribir al menos 8 caracteres"
+            }
+            '2' {
+            echo "Es poco segura, debes añadirle una letra mayúscula, un símbolo y hacerla igual o superior a 8 caracteres"
+            }
+            '5' {
+            echo "Es poco segura, debes añadirle un número, un símbolo y hacerla igual o superior a 8 caracteres"
+            }
+            '10' {
+            echo "Es poco segura, debes añadirle un número, una letra mayúscula y que sea de al menos 8 caracteres"
+            }
+            '11' {
+            echo "Es poco segura, debes añadirle un número, una letra mayúscula y un símbolo"
+            }
+            '7' {
+            echo "Es medio segura, debe tener al menos un símbolo y 8 caracteres"
+            }
+            '12' {
+            echo "Es medio segura, debe tener al menos una mayúscula y 8 caracteres"
+            }
+            '13' {
+            echo "Es medio segura, debe tener al menos una mayúscula y un símbolo"
+            }
+
+            '15' {
+            echo "Es medio segura, debe tener al menos un número y 8 caracteres"
+            }
+            '16' {
+            echo "Es medio segura, debe tener al menos un número y un símbolo"
+            }
+            '21' {
+            echo "Es medio segura, debe tener al menos un símbolo y una mayúscula"
+            }
+            '17' {
+            echo "Es de seguridad alta, para ser del todo segura, debe tener al menos 8 caracteres"
+            }
+            '18' {
+            echo "Es de seguridad alta, para ser del todo segura, debe tener al menos un símbolo"
+            }
+            '23' {
+            echo "Es de seguridad alta, para ser del todo segura, debe tener al menos una mayúscula"
+            }
+            '26' {
+            echo "Es de seguridad alta, para ser del todo segura, debe tener al menos un número"
+            }
+            '28' {
+            echo "Perfecto! tu contraseña cumple con todos los requisitos y es segura"
+            }
+       }
+    } else {
+    echo "Por favor, introduce la contraseña"
+    }
+    return $respuesta
+}
+
+#Ejecutamos la función para cada usuario y contraseña del fichero donde éstos se almacenan
+
+foreach($usuario in gc fichero.txt){
+    $pass=$usuario.split(".")[1]
+    seguridad_password($pass)
+    pause
+    
+  #En caso de que la contraseña sea segura, crea usuarios en el AD
+  
+    if(seguridad_password($pass) -eq "Perfecto! tu contraseña cumple con todos los requisitos y es segura"){
+        
+        #Comprobar que el usuario no existe antes de crearlo
+
+        $SAMAccountName = $usuario.split(".")[0]
+        if(Get-ADUser -LDAPFilter "(samaccountname=$SAMAccountName)"){ 
+            "No se puede crear, ya existe el usuario " + $SAMAccountName 
+        } else { 
+            $nombreusuario= $usuario.split(".")[0]
+            New-ADUser -Name $nombreusuario -Sam $nombreusuario -Path "OU=UnidadPruebaExamen,DC=andel,DC=local" -AccountPassword (ConvertTo-SecureString $pass -AsPlainText -force) -Enable $true Write-Host "Se ha creado el usuario $nombreusuario"
+        } 
+    }
+}
