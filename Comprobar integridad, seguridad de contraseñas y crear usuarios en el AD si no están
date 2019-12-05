@@ -107,7 +107,8 @@ foreach($usuario in gc fichero.txt){
             "No se puede crear, ya existe el usuario " + $SAMAccountName 
         } else { 
             $nombreusuario= $usuario.split(".")[0]
-            New-ADUser -Name $nombreusuario -Sam $nombreusuario -Path "OU=UnidadPruebaExamen,DC=andel,DC=local" -AccountPassword (ConvertTo-SecureString $pass -AsPlainText -force) -Enable $true Write-Host "Se ha creado el usuario $nombreusuario"
+            New-ADUser -Name $nombreusuario -Sam $nombreusuario -Path "OU=UnidadPruebaExamen,DC=andel,DC=local" -AccountPassword (ConvertTo-SecureString $pass -AsPlainText -force) -Enable $true 
+            Write-Host "Se ha creado el usuario $nombreusuario"
         } 
     }
 }
