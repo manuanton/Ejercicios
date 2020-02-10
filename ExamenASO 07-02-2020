@@ -1,3 +1,42 @@
+El archivo fichero.txt contiene:
+uo,ASIR1
+usuario,usuario11,Andel1928,ASIR1
+usuario,usuario12,Andel1928,ASIR1
+usuario,usuario13,Andel1928,ASIR1
+grupo,ASIR1,ASIR1,usuario11,usuario12,usuario13
+
+uo,ASIR2
+usuario,Manu,Andel1928,ASIR2
+usuario,Kike,Andel1928,ASIR2
+usuario,Palomino,Andel1928,ASIR2
+usuario,Sergio,Andel1928,ASIR2
+grupo,ASIR2,ASIR2,Manu,Sergio,Kike,Palomino
+
+uo,SMIR1
+usuario,usuario21,Andel1928,SMIR1
+usuario,usuario22,Andel1928,SMIR1
+grupo,SMIR1,SMIR1,usuario21,usuario22
+
+uo,SMIR2
+usuario,usuario31,Andel1928,SMIR2
+usuario,usuario32,Andel1928,SMIR2
+usuario,usuario33,Andel1928,SMIR2
+usuario,usuario34,Andel1928,SMIR2
+usuario,usuario35,Andel1928,SMIR2
+usuario,usuario36,Andel1928,SMIR2
+grupo,SMIR2,SMIR2,usuario31,usuario32,usuario33,usuario34,usuario35,usuario36
+
+uo,EMC1
+usuario,usu41,Andel1928,EMC1
+usuario,usu42,Andel1928,EMC1
+grupo,EMC1,EMC1,usu41,usu42
+
+uo,EMC2
+usuario,usu51,Andel1928,EMC2
+usuario,usu52,Andel1928,EMC2
+grupo,EMC2,EMC2,usu51,usu52
+
+
 #CREAR UNIDADES ORGANIZATIVAS CON GRUPOS Y USUARIOS DENTRO A PARTIR DE UN TXT
 cd C:\
 
