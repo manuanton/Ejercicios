@@ -37,7 +37,6 @@ usuario,usu52,Andel1928,EMC2
 grupo,EMC2,EMC2,usu51,usu52
 
 
-```POWERSHELL
 #CREAR UNIDADES ORGANIZATIVAS CON GRUPOS Y USUARIOS DENTRO A PARTIR DE UN TXT
 cd C:\
 
@@ -179,4 +178,3 @@ while(1){
     }
     Start-Sleep 600
 }
-```
