@@ -1,0 +1,40 @@
+CODIGO PHP
+
+<head>
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+	<title>P001</title>
+</head>
+
+<body>
+	<?php
+
+		$var = ".\datos.ini";
+		$base = parse_ini_file($var);		
+		$php = new PDO($base["baseDeDatos"],$base["usuario"]);
+
+				//Obtener imagen por metodo GET
+				$imagen = htmlspecialchars($_GET['imagen']);
+				 
+				//Codificando la imagen en base64
+				$base64 = base64_encode($imagen);
+ 
+				//Meter imagen codificada en la base de datos
+				$con = $php->prepare("INSERT INTO examen VALUES (:tex);");
+				$con->bindParam(':tex',$base64);
+				$con->execute();
+
+				//Sacar imagen codificada de la base de datos y decodificarla
+				$con = $php->prepare("SELECT * FROM examen");
+				$con->execute();
+				$registros = $con->fetchAll(PDO::FETCH_NUM);
+				$contenido = $registros[0][0];
+				$contenido_decodificado = base64_decode($contenido);
+				?>
+			<!--Ponemos la imagen decodificada centrada y con un tamaño idoneo-->
+			<center>
+			<img src="<?php echo "$contenido_decodificado"; ?>" width="80%" height="100%"/>
+			</center>
+</body>
+</html>
+?>
+
