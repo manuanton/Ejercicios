@@ -1,0 +1,107 @@
+CÓDIGO PHP
+
+<head>
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+	<title>P001</title>
+</head>
+
+<body>
+	<?php
+
+		$var = ".\datos.ini";
+		$base = parse_ini_file($var);		
+		$php = new PDO($base["baseDeDatos"],$base["usuario"]);
+
+		$enviar = htmlspecialchars($_GET['enviar']);
+
+		if ($enviar=="print"){
+
+			$trabajos = htmlspecialchars($_GET['trabajos']);
+			
+			if ($trabajos=="10"){
+				$con = $php->prepare("SELECT * from acciones;");
+				$con->execute();
+				$registros = $con->fetchAll(PDO::FETCH_NUM);
+				$texto = $registros[0][0];
+				$textodefinitivo = "Su acción ha sido $texto";
+			}
+
+			
+			?><h1><?php echo "$textodefinitivo"?></h1><?php
+
+		} else if($enviar=="connection"){
+			$trabajos = htmlspecialchars($_GET['trabajos']);
+			
+			if ($trabajos=="192.168.1.5"){
+				$con = $php->prepare("SELECT * from acciones;");
+				$con->execute();
+				$registros = $con->fetchAll(PDO::FETCH_NUM);
+				$texto = $registros[0][1];
+				$textodefinitivo = "Su acción ha sido $texto con la IP $trabajos";
+			}
+
+			
+			?><h1><?php echo "$textodefinitivo"?></h1><?php
+		} else if($enviar=="regla"){
+			$trabajos = htmlspecialchars($_GET['trabajos']);
+			
+			if ($trabajos=="bloquearip"){
+				$con = $php->prepare("SELECT * from acciones;");
+				$con->execute();
+				$registros = $con->fetchAll(PDO::FETCH_NUM);
+				$texto = $registros[0][2];
+				$textodefinitivo = "Su acción ha sido $texto, en este caso bloquear una o varias ip";
+			}
+
+			
+			?><h1><?php echo "$textodefinitivo"?></h1><?php
+		}
+	?>
+	
+</body>
+</html>
+
+
+CÓDIGO POWERSHELL
+
+cd D:\xampp\htdocs\P001
+
+$accion = Read-Host "Que desea hacer?"
+
+if($accion -eq "eliminar"){
+    #Eliminar trabajos mayores a 1KB que estén en cola sacando la orden de una base de datos a una página web.
+    $eliminar=Invoke-WebRequest 'http://localhost/P001/default.php?enviar=print&trabajos=10'
+    $eliminar2=($eliminar.AllElements | where tagname -EQ "h1").innerHTML
+    $eliminar2
+
+    Start-Sleep 2
+
+    echo "hola-hola-hola" | Out-Printer "Generic / Text Only"
+    echo "Se ha generado un archivo en la cola de impresión"
+
+    Start-Sleep 2
+
+    foreach($impresora in Get-Printer){
+        foreach ($trabajo in Get-PrintJob $impresora.Name)
+        {
+            if($trabajo.Size -gt 1KB)
+            {
+                    "ES MAYOR, LO ELIMINO"
+                    $trabajo.Id
+                    Remove-PrintJob -ID $trabajo.Id -PrinterName $impresora.Name
+            }
+        }
+    }
+
+}elseif($accion -eq "conexion"){
+    $conexion=Invoke-WebRequest 'http://localhost/P001/default.php?enviar=connection&trabajos=192.168.1.5'
+    $conexion2=($conexion.AllElements | where tagname -EQ "h1").innerHTML
+    $conexion2
+
+    #Conectar por SSH a un equipo
+    New-SSHSession -ComputerName 192.168.1.5 -Credential manu
+
+    #Ejecutar un comando y mostrar resultado
+    $comando1 = Invoke-SSHCommand -Index 0 "cat fichero.txt"
+    $comando1.Output
+}

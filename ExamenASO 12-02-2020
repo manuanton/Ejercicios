@@ -1,0 +1,180 @@
+El archivo fichero.txt contiene:
+uo,ASIR1
+usuario,usuario11,Andel1928,ASIR1
+usuario,usuario12,Andel1928,ASIR1
+usuario,usuario13,Andel1928,ASIR1
+grupo,ASIR1,ASIR1,usuario11,usuario12,usuario13
+
+uo,ASIR2
+usuario,Manu,Andel1928,ASIR2
+usuario,Kike,Andel1928,ASIR2
+usuario,Palomino,Andel1928,ASIR2
+usuario,Sergio,Andel1928,ASIR2
+grupo,ASIR2,ASIR2,Manu,Sergio,Kike,Palomino
+
+uo,SMIR1
+usuario,usuario21,Andel1928,SMIR1
+usuario,usuario22,Andel1928,SMIR1
+grupo,SMIR1,SMIR1,usuario21,usuario22
+
+uo,SMIR2
+usuario,usuario31,Andel1928,SMIR2
+usuario,usuario32,Andel1928,SMIR2
+usuario,usuario33,Andel1928,SMIR2
+usuario,usuario34,Andel1928,SMIR2
+usuario,usuario35,Andel1928,SMIR2
+usuario,usuario36,Andel1928,SMIR2
+grupo,SMIR2,SMIR2,usuario31,usuario32,usuario33,usuario34,usuario35,usuario36
+
+uo,EMC1
+usuario,usu41,Andel1928,EMC1
+usuario,usu42,Andel1928,EMC1
+grupo,EMC1,EMC1,usu41,usu42
+
+uo,EMC2
+usuario,usu51,Andel1928,EMC2
+usuario,usu52,Andel1928,EMC2
+grupo,EMC2,EMC2,usu51,usu52
+
+
+#CREAR UNIDADES ORGANIZATIVAS CON GRUPOS Y USUARIOS DENTRO A PARTIR DE UN TXT
+cd C:\
+
+#Los datos de las OU son "orden","nombre"
+#Los datos de los usuarios son "orden","nombre","contraseña","OU a la que pertenece"
+#Los datos de los grupos son "orden","nombre","OU a la que pertenece","miembro1","miembro2"...
+
+
+#UNIDADES ORGANIZATIVAS
+foreach ($linea in gc fichero.txt){
+    if ($linea.split(",")[0] -eq "uo"){
+
+        #Crear la OU
+        $OU=$linea.split(",")[1]
+
+        New-ADOrganizationalUnit -Name $OU -ProtectedFromAccidentalDeletion $false -Path "DC=andel,DC=local"
+        echo "Se ha creado la Unidad Organizativa $OU"
+        Start-Sleep -Seconds 1
+
+    }
+}
+echo "Ya no hay más Unidades Organizativas"
+Start-Sleep -Seconds 3
+
+
+#USUARIOS
+foreach ($linea in gc fichero.txt){
+    if ($linea.split(",")[0] -eq "usuario"){
+
+        #Crear usuario y meterlo en la OU
+        $usuario=$linea.split(",")[1]
+        $contraseña=$linea.split(",")[2]
+        $OU=$linea.split(",")[3]
+
+        New-ADUser -Name $usuario -Sam $usuario -Path "OU=$OU,DC=andel,DC=local" -AccountPassword (ConvertTo-SecureString $contraseña -AsPlainText -force) -Enable $true
+        echo "Se ha creado el usuario $usuario y ha sido añadido a la OU $OU"
+        Start-Sleep -Seconds 1
+
+    }
+}
+echo "Ya no hay más usuarios"
+Start-Sleep -Seconds 3
+ 
+
+ #GRUPOS
+ foreach ($linea in gc fichero.txt){
+    if ($linea.split(",")[0] -eq "grupo"){
+
+        #Crear grupo y meterlo en la OU
+        $grupo=$linea.split(",")[1]
+        $OU=$linea.split(",")[2]
+        $miembros=$linea.split(",")[3..10]
+
+        New-ADGroup -Name $grupo -GroupScope Global -Path "OU=$OU,DC=andel,DC=local"
+        Add-ADGroupMember $grupo -Members $miembros
+        echo "Se ha creado el grupo $grupo y se le han añadido los usuarios $miembros."
+        Start-Sleep -Seconds 1
+
+    }
+}
+echo "Ya no hay más grupos"
+Start-Sleep -Seconds 3
+
+
+
+#DESACTIVAR CUENTAS DE LOS USUARIOS DE EMC2
+
+$grupo=(Get-ADGroup -Filter 'samAccountName -like "*EMC2*"').DistinguishedName
+$usuariosgrupo=(Get-ADGroupMember -Identity $grupo).name
+foreach($usu in $usuariosgrupo){
+    Disable-LocalUser -Name $usu
+    echo "Se ha deshabilitado la cuenta de usuario $usu"
+}
+
+
+
+#CREAR NUEVA OU LLAMADA UnidadDeshabilitados Y MOVER LAS CUENTAS DESHABILITADAS A ESTA OU
+
+$OU="UnidadDeshabilitados"
+New-ADOrganizationalUnit -Name $OU -ProtectedFromAccidentalDeletion $false -Path "DC=andel,DC=local"
+echo "Se ha creado la Unidad Organizativa $OU"
+Start-Sleep -Seconds 2
+
+$deshabilitadas=Get-ADUser -Filter 'samAccountName -like "*"' | where Enabled -ne "True"
+$rutadeshabilitadas=$deshabilitadas.DistinguishedName
+$deshabilitadas=$deshabilitadas.name
+$pathdeshabilitados=(Get-ADOrganizationalUnit -Filter 'Name -like "*UnidadDeshabilitados*"').DistinguishedName
+foreach($rutadeshabilitada in $rutadeshabilitadas){
+    Move-ADObject $rutadeshabilitada -TargetPath "$pathdeshabilitados"
+    echo "Se ha movido el usuario $rutadeshabilitada a la OU UnidadDeshabilitados"
+}
+Start-Sleep 3
+
+
+
+#ELIMINAR UNIDADES ORGANIZATIVAS POR EJEMPLO SMIR1
+$OU=(Get-ADOrganizationalUnit -Filter 'Name -like "*SMIR1*"').DistinguishedName
+Remove-ADOrganizationalUnit $OU -Recursive
+echo "Se ha eliminado la Unidad Organizativa $OU"
+
+
+
+#CREAR CARPETAS COMPARTIDAS PARA CADA USUARIO
+
+#Importar módulo:
+Import-Module SmbShare
+
+$users=(Get-ADUser -Filter *).Name | select -skip 1
+foreach($usuario in $users){
+    New-Item "C:\compartidas\$usuario" -ItemType Directory -Force
+    New-SMBShare –Name $usuario –Path C:\compartidas\$usuario –FullAccess 'Administrador' -ChangeAccess $usuario -ReadAccess 'Usuarios'
+}
+
+
+
+#CONTROLAR LA IMPRESIÓN: Borrar archivo de impresion cuando haya más de 10 trabajos en la cola.
+function control-10impresiones($cantidad){
+    $impresion=Get-PrintJob -PrinterName "Generic / Text Only" | select UserName
+    if($impresion.Count -gt $cantidad)
+    {
+        "No puedes imprimir, ya estás imprimiendo muchos elementos"
+        $quitar=$impresion.Count - $cantidad
+        $ultimos=$impresion| select -Last $quitar
+        Remove-PrintJob $ultimos
+    }
+    else
+    {
+    "Todo correcto"
+    }
+}
+control-10impresiones 10
+
+
+#HACER UNA COPIA DE SEGURIDAD DE CADA CARPETA
+while(1){
+    foreach($usuario in $users){
+        Copy-Item "C:\compartidas\$usuario" "C:\$usuario" -Recurse
+        "Se han copiado los archivos de $usuario"
+    }
+    Start-Sleep 600
+}
