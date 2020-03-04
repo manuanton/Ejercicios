@@ -1,7 +1,12 @@
-CÓDIGO PHP
+Será necesario:
+-Una imagen con un virus
+-Una tabla con dos columnas donde almacenar una imagen en base64 e información acerca del equipo y usuario
 
-No es necesario crear un trigger puesto que cuando envío la imagen también envíon información acerca de el equipo y usuario que se está utilizando en ese momento.
-Por ello, solo con el php se puede tener controlados a aquellos usuarios que inserten cualquier cosa en la base de datos.
+No es necesario crear un trigger puesto que cuando se envía la imagen también se envía información acerca de el equipo y usuario 
+que se está utilizando en ese momento.
+Por tanto, solo con el código php se puede lograr nuestro objetivo y controlar quién inserta datos en la tabla.
+
+CÓDIGO PHP
 
 <head>
 	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
