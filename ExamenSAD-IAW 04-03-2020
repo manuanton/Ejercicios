@@ -1,0 +1,42 @@
+CÓDIGO PHP
+
+<head>
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+	<title>P001</title>
+</head>
+
+<body>
+	<?php
+
+		$var = ".\datos.ini";
+		$base = parse_ini_file($var);		
+		$php = new PDO($base["baseDeDatos"],$base["usuario"]);
+
+				//Obtener imagen por metodo GET, en mi caso se encuentra en la ruta "D:\xampp\htdocs\P001\Invoke-PSImage-master\gato_malo.jpg"
+				$imagen = htmlspecialchars($_GET['imagen']);
+				 
+				//Codificando la imagen en base64
+				$contenidoarchivo = file_get_contents($imagen);
+				$base64 = 'data:image/jpg;base64,'.base64_encode($contenidoarchivo);
+ 
+				//Meter imagen codificada en la base de datos
+				$con = $php->prepare("INSERT INTO imagen_virus(imagen) VALUES (:tex);");
+				$con->bindParam(':tex',$base64);
+				$con->execute();
+
+				//Sacar imagen codificada de la base de datos y decodificarla
+				$con = $php->prepare("SELECT * FROM imagen_virus");
+				$con->execute();
+				$registros = $con->fetchAll(PDO::FETCH_NUM);
+				$contenido = $registros[0][0];
+				?>
+			<!--Ponemos la imagen decodificada centrada y con un tamaño idoneo-->
+			<center>
+			<img src="<?php echo "$contenido"; ?>" width="80%" height="100%"/>
+			</center>
+</body>
+</html>
+?>
+
+
+
