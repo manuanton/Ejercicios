@@ -1,5 +1,8 @@
 CÓDIGO PHP
 
+No es necesario crear un trigger puesto que cuando envío la imagen también envíon información acerca de el equipo y usuario que se está utilizando en ese momento.
+Por ello, solo con el php se puede tener controlados a aquellos usuarios que inserten cualquier cosa en la base de datos.
+
 <head>
 	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 	<title>P001</title>
@@ -18,14 +21,18 @@ CÓDIGO PHP
 				//Codificando la imagen en base64
 				$contenidoarchivo = file_get_contents($imagen);
 				$base64 = 'data:image/jpg;base64,'.base64_encode($contenidoarchivo);
+
+				//Hallar el usuario del sistema
+				$usu=system('whoami');
  
-				//Meter imagen codificada en la base de datos
-				$con = $php->prepare("INSERT INTO imagen_virus(imagen) VALUES (:tex);");
+				//Meter imagen codificada en la base de datos y el usuario que la introduce
+				$con = $php->prepare("INSERT INTO imagen_virus(imagen,usuario) VALUES (:tex,:usu);");
 				$con->bindParam(':tex',$base64);
+				$con->bindParam(':usu',$usu);
 				$con->execute();
 
 				//Sacar imagen codificada de la base de datos y decodificarla
-				$con = $php->prepare("SELECT * FROM imagen_virus");
+				$con = $php->prepare("SELECT imagen FROM imagen_virus");
 				$con->execute();
 				$registros = $con->fetchAll(PDO::FETCH_NUM);
 				$contenido = $registros[0][0];
@@ -37,6 +44,5 @@ CÓDIGO PHP
 </body>
 </html>
 ?>
-
 
 
